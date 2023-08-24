@@ -1,0 +1,13 @@
+﻿.idea
+.vs
+.vscode
+
+[Oo]bj
+[Bb]in
+[Dd]ebug
+[Rr]elease
+[Tt]est[Rr]esult*
+_ReSharper.*
+*.suo
+*.user
+

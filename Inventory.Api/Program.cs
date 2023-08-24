@@ -8,8 +8,11 @@ builder.SetupLogger();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddFastEndpoints();
+builder.Services.AddFastEndpoints()
+       .AddResponseCaching()
+       .AddResponseCompression();
 
+builder.Services.AddAuthentication().AddJwtBearer();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -21,13 +24,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// app.UseAuthorization();
-
-//app.UseFastEndpoints();
-app.MapGet("info", (ILoggerFactory loggerFactory) =>
-{
-    var logger = loggerFactory.CreateLogger("InfoEndpoint");
-    logger.LogInformation("We hit the info endpoint at {Time}", DateTime.UtcNow);
-    return Results.Ok(new { success = true, message = "Hello" });
-});
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseResponseCaching();
+app.UseFastEndpoints();
+app.UseResponseCompression();
 app.Run();

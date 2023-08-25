@@ -1,5 +1,7 @@
 using FastEndpoints;
 using Inventory.Api;
+using Inventory.Data;
+using Inventory.Data.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.SetupLogger();
@@ -11,6 +13,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddFastEndpoints()
        .AddResponseCaching()
        .AddResponseCompression();
+
+builder.Services.AddInventoryPostgresDbContext();
+builder.Services.AddInventoryRepositories();
 
 builder.Services.AddAuthentication().AddJwtBearer();
 var app = builder.Build();

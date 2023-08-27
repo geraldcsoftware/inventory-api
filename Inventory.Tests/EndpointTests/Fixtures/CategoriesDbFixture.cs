@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using DotNet.Testcontainers.Builders;
-using Inventory.Data;
 using Inventory.Data.Entities;
+using Inventory.Data.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Testcontainers.PostgreSql;
@@ -30,10 +30,10 @@ public class CategoriesDbFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _testContainer.StartAsync();
-        var dbContextOptions = new DbContextOptionsBuilder<InventoryDbContext>()
+        var dbContextOptions = new DbContextOptionsBuilder<InventoryPostgresDbContext>()
                               .UseNpgsql(_testContainer.GetConnectionString())
                               .Options;
-        await using var dbContext = new InventoryDbContext(dbContextOptions);
+        await using var dbContext = new InventoryPostgresDbContext(dbContextOptions);
         if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
             await dbContext.Database.MigrateAsync();
 
@@ -41,12 +41,7 @@ public class CategoriesDbFixture : IAsyncLifetime
                    .RuleFor(x => x.Created, f =>  new DateTimeOffset(DateTime.SpecifyKind(f.Date.Past(), DateTimeKind.Utc), TimeSpan.Zero))
                    .RuleFor(x => x.Name, f => f.Commerce.Categories(1).First())
                    .RuleFor(x => x.Description, f => f.Commerce.ProductDescription())
-                   .RuleFor(x => x.Metadata!, () => new Dictionary<string, string>
-                    {
-                        { "key1", "value1" },
-                        { "key2", "value2" },
-                        { "key3", "value3" }
-                    });
+                   .RuleFor(x => x.Metadata!, () =>  new() { { "key", "value" } });
 
         var demoCategories = faker.Generate(10);
         dbContext.AddRange(demoCategories);

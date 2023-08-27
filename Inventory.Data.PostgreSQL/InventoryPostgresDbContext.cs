@@ -2,7 +2,7 @@
 
 namespace Inventory.Data.PostgreSQL;
 
-public class InventoryPostgresDbContext(DbContextOptions<InventoryDbContext> options): InventoryDbContext(options)
+public class InventoryPostgresDbContext(DbContextOptions options): InventoryDbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

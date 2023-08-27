@@ -25,6 +25,6 @@ public class GetCategoriesEndpoint(IInventoryCategoriesRepository repository) :
     public override async Task<IReadOnlyCollection<InventoryCategory>> ExecuteAsync(CancellationToken ct)
     {
         var categories = await repository.GetCategories(ct);
-        return categories.Select(c => Mapper.FromEntity(c)).ToList();
+        return categories.Select(c => Map.FromEntity(c)).ToList();
     }
 }

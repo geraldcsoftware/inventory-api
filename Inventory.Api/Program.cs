@@ -1,5 +1,6 @@
 using FastEndpoints;
 using Inventory.Api;
+using Inventory.Api.Infrastructure;
 using Inventory.Data;
 using Inventory.Data.PostgreSQL;
 
@@ -14,11 +15,15 @@ builder.Services.AddFastEndpoints()
        .AddResponseCaching()
        .AddResponseCompression();
 
+builder.Services.AddDbInitializer();
+
 builder.Services.AddInventoryPostgresDbContext();
 builder.Services.AddInventoryRepositories();
 
 builder.Services.AddAuthentication().AddJwtBearer();
 var app = builder.Build();
+
+await TryRunInitializers(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -35,3 +40,17 @@ app.UseResponseCaching();
 app.UseFastEndpoints();
 app.UseResponseCompression();
 app.Run();
+return;
+
+async Task TryRunInitializers(WebApplication webApplication)
+{
+    try
+    {
+        await webApplication.InitializeAsync();
+    }
+    catch (Exception exception)
+    {
+        webApplication.Logger.LogCritical(exception, "An error occurred while migrating or initializing the application components");
+        throw;
+    }
+}

@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Inventory.Data;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.OpenApi.Models;
 
 namespace Inventory.Api.Endpoints.Categories;
 
@@ -16,7 +17,22 @@ public class GetCategoryByIdEndpoint(IInventoryCategoriesRepository repository) 
              .WithDisplayName("Get Category By Id")
              .WithDescription("Get inventory category by id")
              .WithTags("Categories");
-            x.WithOpenApi();
+            x.WithOpenApi(openApiOperation =>
+            {
+                openApiOperation.Parameters.Add(new OpenApiParameter
+                {
+                    Name = "id",
+                    In = ParameterLocation.Path,
+                    Description = "Category id",
+                    Required = true,
+                    Schema = new OpenApiSchema
+                    {
+                        Type = "integer",
+                        Minimum = 1
+                    }
+                });
+                return openApiOperation;
+            });
             x.CacheOutput(p => p.Expire(TimeSpan.FromMinutes(5)));
         });
         AllowAnonymous();

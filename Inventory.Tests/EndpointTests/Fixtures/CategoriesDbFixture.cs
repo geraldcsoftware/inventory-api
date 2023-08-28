@@ -41,7 +41,7 @@ public class CategoriesDbFixture : IAsyncLifetime
                    .RuleFor(x => x.Created, f =>  new DateTimeOffset(DateTime.SpecifyKind(f.Date.Past(), DateTimeKind.Utc), TimeSpan.Zero))
                    .RuleFor(x => x.Name, f => f.Commerce.Categories(1).First())
                    .RuleFor(x => x.Description, f => f.Commerce.ProductDescription())
-                   .RuleFor(x => x.Metadata!, () =>  new() { { "key", "value" } });
+                   .RuleFor(x => x.Metadata, () =>  new() { { "key", "value" } });
 
         var demoCategories = faker.Generate(10);
         dbContext.AddRange(demoCategories);

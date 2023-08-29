@@ -1,12 +1,11 @@
 using FastEndpoints;
 using Inventory.Data;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.OpenApi.Models;
 
 namespace Inventory.Api.Endpoints.Categories;
 
 public class GetCategoryByIdEndpoint(IInventoryCategoriesRepository repository) :
-    EndpointWithoutRequest<Results<Ok<InventoryCategory>, NotFound>, InventoryCategoryMapper>
+    EndpointWithoutRequest<InventoryCategory, InventoryCategoryMapper>
 {
     public override void Configure()
     {
@@ -39,19 +38,24 @@ public class GetCategoryByIdEndpoint(IInventoryCategoriesRepository repository) 
         ResponseCache(300);
     }
 
-    public override async Task<Results<Ok<InventoryCategory>, NotFound>> ExecuteAsync(CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         var id = Route<int>("id");
         if (id <= 0)
         {
-            return TypedResults.NotFound();
+            AddError("Invalid category id");
         }
-        
+
+        ThrowIfAnyErrors();
+
         var category = await repository.GetCategory(id, ct);
-        return category switch
+        if (category is null)
         {
-            null => TypedResults.NotFound(),
-            _    => TypedResults.Ok(Map.FromEntity(category))
-        };
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        var result = Map.FromEntity(category);
+        await SendOkAsync(result, ct);
     }
 }
